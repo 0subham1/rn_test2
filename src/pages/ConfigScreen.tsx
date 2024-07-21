@@ -1,17 +1,18 @@
-// ConfigScreen.js
 import React, {useState} from 'react';
-import {View, Text, TextInput, Button, StyleSheet} from 'react-native';
+import {View, Text, TextInput, Button, StyleSheet, Alert} from 'react-native';
+import {useDebounce} from '../components/useDebounce';
 
-const ConfigScreen = ({navigation, route}) => {
+const ConfigScreen = ({navigation, route}: any) => {
   const [duration, setDuration] = useState(route.params.duration.toString());
+  const debouncedDuration = useDebounce(duration, 300);
 
   const handleSave = () => {
-    const newDuration = parseInt(duration, 10);
+    const newDuration = parseInt(debouncedDuration, 10);
     if (!isNaN(newDuration) && newDuration > 0) {
       route.params.setDuration(newDuration);
       navigation.goBack();
     } else {
-      alert('Please enter a valid number');
+      Alert.alert('Please enter a valid number');
     }
   };
 

@@ -1,8 +1,7 @@
-// TrafficLight.js
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 
-const TrafficLight = ({color}) => {
+const TrafficLight = ({color}: any) => {
   return (
     <View style={styles.container}>
       <View style={[styles.light, color === 'red' && styles.redLight]} />

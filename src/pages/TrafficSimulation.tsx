@@ -1,9 +1,8 @@
-// TrafficSimulation.js
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {View, Button, StyleSheet} from 'react-native';
 import TrafficLight from '../components/TrafficLight';
 
-const TrafficSimulation = ({navigation}) => {
+const TrafficSimulation = ({navigation}: any) => {
   const [lights, setLights] = useState({
     north: 'red',
     east: 'red',
@@ -12,6 +11,36 @@ const TrafficSimulation = ({navigation}) => {
   });
   const [isAmbulance, setIsAmbulance] = useState(false);
   const [duration, setDuration] = useState(3000); // Default duration
+
+  const changeLights = useCallback(() => {
+    setLights(prevLights => {
+      const nextLights = {...prevLights};
+      if (prevLights.north === 'green') {
+        nextLights.north = 'yellow';
+      } else if (prevLights.north === 'yellow') {
+        nextLights.north = 'red';
+        nextLights.east = 'green';
+      } else if (prevLights.east === 'green') {
+        nextLights.east = 'yellow';
+      } else if (prevLights.east === 'yellow') {
+        nextLights.east = 'red';
+        nextLights.south = 'green';
+      } else if (prevLights.south === 'green') {
+        nextLights.south = 'yellow';
+      } else if (prevLights.south === 'yellow') {
+        nextLights.south = 'red';
+        nextLights.west = 'green';
+      } else if (prevLights.west === 'green') {
+        nextLights.west = 'yellow';
+      } else if (prevLights.west === 'yellow') {
+        nextLights.west = 'red';
+        nextLights.north = 'green';
+      } else {
+        nextLights.north = 'green';
+      }
+      return nextLights;
+    });
+  }, []);
 
   useEffect(() => {
     if (isAmbulance) {
@@ -24,43 +53,15 @@ const TrafficSimulation = ({navigation}) => {
       return;
     }
 
-    const interval = setInterval(() => {
-      setLights(prevLights => {
-        const nextLights = {...prevLights};
-        if (prevLights.north === 'green') {
-          nextLights.north = 'yellow';
-        } else if (prevLights.north === 'yellow') {
-          nextLights.north = 'red';
-          nextLights.east = 'green';
-        } else if (prevLights.east === 'green') {
-          nextLights.east = 'yellow';
-        } else if (prevLights.east === 'yellow') {
-          nextLights.east = 'red';
-          nextLights.south = 'green';
-        } else if (prevLights.south === 'green') {
-          nextLights.south = 'yellow';
-        } else if (prevLights.south === 'yellow') {
-          nextLights.south = 'red';
-          nextLights.west = 'green';
-        } else if (prevLights.west === 'green') {
-          nextLights.west = 'yellow';
-        } else if (prevLights.west === 'yellow') {
-          nextLights.west = 'red';
-          nextLights.north = 'green';
-        } else {
-          nextLights.north = 'green';
-        }
-        return nextLights;
-      });
-    }, duration); // Change light every `duration` milliseconds
+    const interval = setInterval(changeLights, duration);
 
     return () => clearInterval(interval);
-  }, [isAmbulance, duration]);
+  }, [isAmbulance, duration, changeLights]);
 
-  const handleAmbulance = () => {
+  const handleAmbulance = useCallback(() => {
     setIsAmbulance(true);
     setTimeout(() => setIsAmbulance(false), 5000); // Ambulance presence duration
-  };
+  }, []);
 
   return (
     <View style={styles.container}>
